@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Book{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-1 small">
+      <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="/books">Books</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Add Book</li>
+    </ol>
+  </nav>
+  <h3 class="fw-bold text-dark mb-1">Add New Book</h3>
+  <p class="text-muted small mb-0">Register a new book title into the library inventory database.</p>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-xl-10">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-book-half me-2"></i>Book Details Form</h6>
+      </div>
+      <div class="card-body p-4">
+        {% if error %}
+          <div class="alert alert-danger py-2 small mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}
+          </div>
+        {% endif %}
+
+        <form method="post" action="/books/add">
+          <div class="row g-3">
+            <!-- ISBN -->
+            <div class="col-12 col-md-6">
+              <label for="isbn" class="form-label">ISBN <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="isbn"
+                name="isbn"
+                value="{{ form_data.isbn or '' }}"
+                placeholder="e.g. 978-0132350884"
+                required
+              >
+              <div class="form-text">Must be a unique International Standard Book Number.</div>
+            </div>
+
+            <!-- Title -->
+            <div class="col-12 col-md-6">
+              <label for="title" class="form-label">Book Title <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="title"
+                name="title"
+                value="{{ form_data.title or '' }}"
+                placeholder="e.g. Clean Code"
+                required
+              >
+            </div>
+
+            <!-- Author -->
+            <div class="col-12 col-md-6">
+              <label for="author" class="form-label">Author <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="author"
+                name="author"
+                value="{{ form_data.author or '' }}"
+                placeholder="e.g. Robert C. Martin"
+                required
+              >
+            </div>
+
+            <!-- Category -->
+            <div class="col-12 col-md-6">
+              <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="category"
+                name="category"
+                list="categoryList"
+                value="{{ form_data.category or '' }}"
+                placeholder="Select or enter category (e.g. Computer Science)"
+                required
+              >
+              <datalist id="categoryList">
+                {% for cat in categories %}
+                  <option value="{{ cat }}">
+                {% endfor %}
+                <option value="Computer Science">
+                <option value="Software Engineering">
+                <option value="Mathematics">
+                <option value="Electronics">
+                <option value="Physics">
+                <option value="Literature">
+                <option value="Economics">
+              </datalist>
+            </div>
+
+            <!-- Publisher -->
+            <div class="col-12 col-md-6">
+              <label for="publisher" class="form-label">Publisher</label>
+              <input
+                type="text"
+                class="form-control"
+                id="publisher"
+                name="publisher"
+                value="{{ form_data.publisher or '' }}"
+                placeholder="e.g. Prentice Hall"
+              >
+            </div>
+
+            <!-- Publication Year -->
+            <div class="col-12 col-md-6">
+              <label for="publication_year" class="form-label">Publication Year</label>
+              <input
+                type="number"
+                class="form-control"
+                id="publication_year"
+                name="publication_year"
+                value="{{ form_data.publication_year or '' }}"
+                min="1000"
+                max="2099"
+                placeholder="e.g. 2008"
+              >
+            </div>
+
+            <!-- Total Copies -->
+            <div class="col-12 col-md-4">
+              <label for="total_copies" class="form-label">Total Copies Owned <span class="text-danger">*</span></label>
+              <input
+                type="number"
+                class="form-control"
+                id="total_copies"
+                name="total_copies"
+                value="{{ form_data.total_copies or '1' }}"
+                min="1"
+                required
+              >
+              <div class="form-text">Must be at least 1.</div>
+            </div>
+
+            <!-- Available Copies -->
+            <div class="col-12 col-md-4">
+              <label for="available_copies" class="form-label">Available Copies</label>
+              <input
+                type="number"
+                class="form-control"
+                id="available_copies"
+                name="available_copies"
+                value="{{ form_data.available_copies or '' }}"
+                min="0"
+                placeholder="Defaults to total copies"
+              >
+              <div class="form-text">Cannot exceed total copies.</div>
+            </div>
+
+            <!-- Shelf Number -->
+            <div class="col-12 col-md-4">
+              <label for="shelf_number" class="form-label">Shelf / Rack Number</label>
+              <input
+                type="text"
+                class="form-control"
+                id="shelf_number"
+                name="shelf_number"
+                value="{{ form_data.shelf_number or '' }}"
+                placeholder="e.g. Rack A-4"
+              >
+            </div>
+
+            <!-- Description -->
+            <div class="col-12">
+              <label for="description" class="form-label">Synopsis / Description</label>
+              <textarea
+                class="form-control"
+                id="description"
+                name="description"
+                rows="3"
+                placeholder="Brief summary of book content, edition, or notes..."
+              >{{ form_data.description or '' }}</textarea>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/books" class="btn btn-secondary btn-sm px-3">Cancel</a>
+            <button type="submit" class="btn btn-primary btn-sm px-4">
+              <i class="bi bi-save me-1"></i> Save Book Record
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,452 @@
+/* ==========================================================================
+   Library Management System - Custom Dashboard Styling
+   Color Palette:
+   - Primary: #0f2b48 (Dark Blue)
+   - Secondary: #2563eb (Royal Blue)
+   - Accent: #3b82f6
+   - Background: #f1f5f9 (Light Gray)
+   - Card: #ffffff
+   ========================================================================== */
+
+:root {
+  --primary-dark: #0f2b48;
+  --primary-dark-hover: #173b61;
+  --secondary-blue: #2563eb;
+  --secondary-blue-hover: #1d4ed8;
+  --bg-light: #f8fafc;
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 0px;
+  --topbar-height: 64px;
+  --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --card-hover-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  --border-color: #e2e8f0;
+  --text-muted: #64748b;
+  --text-dark: #1e293b;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   Layout Structure
+-------------------------------------------------------------------------- */
+.app-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--primary-dark);
+  color: #f8fafc;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease-in-out;
+  z-index: 1040;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+}
+
+.sidebar .brand {
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  padding: 0 1.25rem;
+  background-color: #0b1f34;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar .brand a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.sidebar .nav-section {
+  padding: 0.75rem 0;
+}
+
+.sidebar .nav-section-title {
+  padding: 0.5rem 1.25rem 0.25rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.sidebar .nav-link {
+  color: #cbd5e1;
+  padding: 0.65rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+}
+
+.sidebar .nav-link i {
+  font-size: 1.1rem;
+  width: 1.25rem;
+  text-align: center;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-left-color: var(--secondary-blue);
+}
+
+.sidebar .nav-link:hover i {
+  color: #ffffff;
+}
+
+.sidebar .nav-link.active {
+  color: #ffffff;
+  background-color: rgba(37, 99, 235, 0.18);
+  border-left-color: #3b82f6;
+  font-weight: 600;
+}
+
+.sidebar .nav-link.active i {
+  color: #60a5fa;
+}
+
+.sidebar .nav-submenu {
+  padding-left: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.sidebar .nav-submenu .nav-link {
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  font-size: 0.86rem;
+}
+
+/* Main Content Area */
+.main-wrapper {
+  flex-grow: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Top Navigation Bar */
+.topbar {
+  height: var(--topbar-height);
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.topbar-toggle {
+  background: none;
+  border: none;
+  font-size: 1.35rem;
+  color: var(--primary-dark);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.topbar-toggle:hover {
+  background-color: #f1f5f9;
+}
+
+.topbar .library-badge {
+  font-weight: 600;
+  color: var(--primary-dark);
+  font-size: 1rem;
+}
+
+.content-body {
+  flex-grow: 1;
+  padding: 1.75rem 1.75rem;
+}
+
+/* Footer */
+.app-footer {
+  background-color: #ffffff;
+  border-top: 1px solid var(--border-color);
+  padding: 1rem 1.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   Cards, Badges, and Stats
+-------------------------------------------------------------------------- */
+.card {
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--card-shadow);
+  background-color: #ffffff;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--card-hover-shadow);
+}
+
+.card-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.9rem 1.25rem;
+  font-weight: 600;
+}
+
+/* Stat KPI Cards */
+.stat-card {
+  border-radius: 0.65rem;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border-color);
+}
+
+.stat-card .stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+.stat-card .stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  line-height: 1.2;
+}
+
+.stat-card .stat-label {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* --------------------------------------------------------------------------
+   Status Badges (Standardized)
+-------------------------------------------------------------------------- */
+.badge-status {
+  padding: 0.35em 0.7em;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: 50rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.badge-status.status-available,
+.badge-status.status-returned,
+.badge-status.status-active {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-status.status-issued,
+.badge-status.status-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.badge-status.status-overdue,
+.badge-status.status-error,
+.badge-status.status-inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.badge-status.status-pending,
+.badge-status.status-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+-------------------------------------------------------------------------- */
+.table {
+  vertical-align: middle;
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons & Form Controls
+-------------------------------------------------------------------------- */
+.btn-primary {
+  background-color: var(--secondary-blue);
+  border-color: var(--secondary-blue);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--secondary-blue-hover);
+  border-color: var(--secondary-blue-hover);
+}
+
+.btn-dark-blue {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  color: #ffffff;
+}
+
+.btn-dark-blue:hover {
+  background-color: var(--primary-dark-hover);
+  border-color: var(--primary-dark-hover);
+  color: #ffffff;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.82rem;
+  border-radius: 0.3rem;
+}
+
+.form-label {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #334155;
+  margin-bottom: 0.35rem;
+}
+
+.form-control, .form-select {
+  border-color: #cbd5e1;
+  font-size: 0.9rem;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--secondary-blue);
+  box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   Mobile & Responsive Sidebar Collapsing
+-------------------------------------------------------------------------- */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  z-index: 1035;
+}
+
+@media (max-width: 991.98px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.show {
+    transform: translateX(0);
+  }
+  .main-wrapper {
+    margin-left: 0;
+  }
+  .sidebar-backdrop.show {
+    display: block;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Print Styles for Reports
+-------------------------------------------------------------------------- */
+@media print {
+  .sidebar, .topbar, .app-footer, .btn, .no-print, .alert {
+    display: none !important;
+  }
+  .main-wrapper {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+  .content-body {
+    padding: 0 !important;
+  }
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    font-size: 11pt !important;
+  }
+  .print-header {
+    display: block !important;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+}
+
+.print-header {
+  display: none;
+}

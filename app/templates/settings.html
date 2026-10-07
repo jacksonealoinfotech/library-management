@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-1 small">
+      <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Settings</li>
+    </ol>
+  </nav>
+  <h3 class="fw-bold text-dark mb-1">System &amp; Security Settings</h3>
+  <p class="text-muted small mb-0">Configure library loan policies, fine calculations, and administrator security.</p>
+</div>
+
+<div class="row g-4">
+  <!-- General Configuration Form -->
+  <div class="col-12 col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-sliders me-2"></i>Circulation &amp; Library Rules</h6>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" action="/settings">
+          <div class="mb-3">
+            <label for="library_name" class="form-label">Library Name <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              id="library_name"
+              name="library_name"
+              value="{{ settings.library_name }}"
+              required
+            >
+            <div class="form-text">Display name shown in the navigation bar and on printed reports.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="max_books_per_student" class="form-label">Maximum Books Per Student <span class="text-danger">*</span></label>
+            <input
+              type="number"
+              class="form-control"
+              id="max_books_per_student"
+              name="max_books_per_student"
+              value="{{ settings.max_books_per_student }}"
+              min="1"
+              max="20"
+              required
+            >
+            <div class="form-text">Maximum active borrowed books an eligible student may hold simultaneously.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="fine_per_day" class="form-label">Overdue Fine Rate Per Day ($) <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input
+                type="number"
+                step="0.50"
+                class="form-control"
+                id="fine_per_day"
+                name="fine_per_day"
+                value="{{ settings.fine_per_day }}"
+                min="0"
+                required
+              >
+            </div>
+            <div class="form-text">Fine amount assessed daily for each day a book remains overdue past the due date.</div>
+          </div>
+
+          <div class="mb-4">
+            <label for="default_due_days" class="form-label">Default Lending Duration (Days) <span class="text-danger">*</span></label>
+            <input
+              type="number"
+              class="form-control"
+              id="default_due_days"
+              name="default_due_days"
+              value="{{ settings.default_due_days }}"
+              min="1"
+              max="90"
+              required
+            >
+            <div class="form-text">Standard number of days calculated automatically when issuing a book.</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm px-4">
+            <i class="bi bi-save me-1"></i> Save Configuration
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security / Password Change -->
+  <div class="col-12 col-lg-5">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-shield-lock me-2"></i>Change Administrator Password</h6>
+      </div>
+      <div class="card-body p-4">
+        <div class="alert alert-info py-2 small mb-3">
+          <i class="bi bi-info-circle me-1"></i> Default credentials: <code>admin</code> / <code>admin123</code>. We strongly advise updating your password.
+        </div>
+
+        <form method="post" action="/settings/password">
+          <div class="mb-3">
+            <label for="current_password" class="form-label">Current Password <span class="text-danger">*</span></label>
+            <input
+              type="password"
+              class="form-control"
+              id="current_password"
+              name="current_password"
+              placeholder="Enter current password"
+              required
+            >
+          </div>
+
+          <div class="mb-3">
+            <label for="new_password" class="form-label">New Password <span class="text-danger">*</span></label>
+            <input
+              type="password"
+              class="form-control"
+              id="new_password"
+              name="new_password"
+              placeholder="Minimum 6 characters"
+              minlength="6"
+              required
+            >
+          </div>
+
+          <div class="mb-4">
+            <label for="confirm_password" class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+            <input
+              type="password"
+              class="form-control"
+              id="confirm_password"
+              name="confirm_password"
+              placeholder="Repeat new password"
+              minlength="6"
+              required
+            >
+          </div>
+
+          <button type="submit" class="btn btn-dark-blue btn-sm px-4">
+            <i class="bi bi-key me-1"></i> Update Password
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

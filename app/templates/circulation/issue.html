@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Issue Book{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-1 small">
+      <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="/issued-books">Circulation</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Issue Book</li>
+    </ol>
+  </nav>
+  <h3 class="fw-bold text-dark mb-1">Issue Book to Student</h3>
+  <p class="text-muted small mb-0">Record a new book loan transaction and automatically update inventory availability.</p>
+</div>
+
+<div class="row g-4">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-box-arrow-up-right me-2"></i>Circulation Loan Form</h6>
+      </div>
+      <div class="card-body p-4">
+        {% if error %}
+          <div class="alert alert-danger py-2 small mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}
+          </div>
+        {% endif %}
+
+        <form method="post" action="/issue" id="issueBookForm">
+          <!-- Student Selection -->
+          <div class="mb-3">
+            <label for="student_id" class="form-label">Select Student <span class="text-danger">*</span></label>
+            <select name="student_id" id="student_id" class="form-select" required>
+              <option value="">-- Choose an Active Student --</option>
+              {% for s in students %}
+                <option
+                  value="{{ s.id }}"
+                  {% if selected_student_id == s.id %}selected{% endif %}
+                >
+                  {{ s.full_name }} (Adm: {{ s.admission_number }}) - {{ s.department }} ({{ s.year }})
+                </option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Only active registered students are eligible for borrowing.</div>
+          </div>
+
+          <!-- Book Selection -->
+          <div class="mb-3">
+            <label for="book_id" class="form-label">Select Book <span class="text-danger">*</span></label>
+            <select name="book_id" id="book_id" class="form-select" required>
+              <option value="">-- Choose an Available Book --</option>
+              {% for b in books %}
+                <option
+                  value="{{ b.id }}"
+                  {% if selected_book_id == b.id %}selected{% endif %}
+                >
+                  {{ b.title }} by {{ b.author }} [ISBN: {{ b.isbn }}] ({{ b.available_copies }} in stock)
+                </option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Only books with at least 1 copy available in inventory are shown.</div>
+          </div>
+
+          <!-- Dates Row -->
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6">
+              <label for="issue_date" class="form-label">Issue Date <span class="text-danger">*</span></label>
+              <input
+                type="date"
+                class="form-control"
+                id="issue_date"
+                name="issue_date"
+                value="{{ issue_date }}"
+                required
+              >
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="due_date" class="form-label">Due Date <span class="text-danger">*</span></label>
+              <input
+                type="date"
+                class="form-control"
+                id="due_date"
+                name="due_date"
+                value="{{ due_date }}"
+                required
+              >
+              <div class="form-text">Standard lending duration: {{ app_settings.DEFAULT_DUE_DAYS }} days.</div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/issued-books" class="btn btn-secondary btn-sm px-3">Cancel</a>
+            <button type="submit" class="btn btn-primary btn-sm px-4">
+              <i class="bi bi-check2-circle me-1"></i> Issue Book Now
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business Rules Card -->
+  <div class="col-12 col-lg-4">
+    <div class="card bg-light border-0">
+      <div class="card-header bg-transparent py-3 border-bottom">
+        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-info-circle-fill text-primary me-2"></i>Lending Policies</h6>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0 small text-secondary d-flex flex-column gap-3">
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success fs-6 mt-0"></i>
+            <span><strong>Student Eligibility:</strong> The student must have an <code>Active</code> member status in the directory.</span>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success fs-6 mt-0"></i>
+            <span><strong>Book Quota:</strong> Maximum limit of <strong>{{ max_books }} books</strong> held simultaneously per student.</span>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success fs-6 mt-0"></i>
+            <span><strong>No Duplicate Titles:</strong> A student cannot borrow a duplicate copy of a title they already have out on loan.</span>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success fs-6 mt-0"></i>
+            <span><strong>Inventory Impact:</strong> Issuing reduces the available copies by 1 automatically.</span>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-exclamation-triangle-fill text-warning fs-6 mt-0"></i>
+            <span><strong>Late Fines:</strong> An overdue fine of <strong>${{ "%.2f"|format(app_settings.FINE_PER_DAY) }}/day</strong> is charged after the due date.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

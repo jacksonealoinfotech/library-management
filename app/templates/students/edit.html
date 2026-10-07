@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Student - {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-1 small">
+      <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="/students">Students</a></li>
+      <li class="breadcrumb-item"><a href="/students/{{ student.id }}">{{ student.full_name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+  </nav>
+  <h3 class="fw-bold text-dark mb-1">Edit Student Record</h3>
+  <p class="text-muted small mb-0">Update contact info, department enrolment, or borrowing status.</p>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-xl-10">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-pencil-square me-2"></i>Editing: {{ student.full_name }}</h6>
+        <span class="badge bg-light text-dark border">Admission No: {{ student.admission_number }}</span>
+      </div>
+      <div class="card-body p-4">
+        {% if error %}
+          <div class="alert alert-danger py-2 small mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}
+          </div>
+        {% endif %}
+
+        <form method="post" action="/students/{{ student.id }}/edit">
+          <div class="row g-3">
+            <!-- Admission Number -->
+            <div class="col-12 col-md-6">
+              <label for="admission_number" class="form-label">Admission / Roll Number <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="admission_number"
+                name="admission_number"
+                value="{{ student.admission_number }}"
+                required
+              >
+            </div>
+
+            <!-- Full Name -->
+            <div class="col-12 col-md-6">
+              <label for="full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="full_name"
+                name="full_name"
+                value="{{ student.full_name }}"
+                required
+              >
+            </div>
+
+            <!-- Email -->
+            <div class="col-12 col-md-6">
+              <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                value="{{ student.email }}"
+                required
+              >
+            </div>
+
+            <!-- Phone -->
+            <div class="col-12 col-md-6">
+              <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+              <input
+                type="tel"
+                class="form-control"
+                id="phone"
+                name="phone"
+                value="{{ student.phone }}"
+                required
+              >
+            </div>
+
+            <!-- Department -->
+            <div class="col-12 col-md-4">
+              <label for="department" class="form-label">Department <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="department"
+                name="department"
+                list="departmentList"
+                value="{{ student.department }}"
+                required
+              >
+              <datalist id="departmentList">
+                {% for dept in departments %}
+                  <option value="{{ dept }}">
+                {% endfor %}
+              </datalist>
+            </div>
+
+            <!-- Course -->
+            <div class="col-12 col-md-4">
+              <label for="course" class="form-label">Course / Degree <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="course"
+                name="course"
+                value="{{ student.course }}"
+                required
+              >
+            </div>
+
+            <!-- Academic Year -->
+            <div class="col-12 col-md-4">
+              <label for="year" class="form-label">Academic Year <span class="text-danger">*</span></label>
+              <select name="year" id="year" class="form-select" required>
+                <option value="1st Year" {% if student.year == '1st Year' %}selected{% endif %}>1st Year</option>
+                <option value="2nd Year" {% if student.year == '2nd Year' %}selected{% endif %}>2nd Year</option>
+                <option value="3rd Year" {% if student.year == '3rd Year' %}selected{% endif %}>3rd Year</option>
+                <option value="4th Year" {% if student.year == '4th Year' %}selected{% endif %}>4th Year</option>
+                <option value="Post Graduate" {% if student.year == 'Post Graduate' %}selected{% endif %}>Post Graduate</option>
+              </select>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="col-12 col-md-6">
+              <label for="date_of_birth" class="form-label">Date of Birth</label>
+              <input
+                type="date"
+                class="form-control"
+                id="date_of_birth"
+                name="date_of_birth"
+                value="{{ student.date_of_birth.isoformat() if student.date_of_birth else '' }}"
+              >
+            </div>
+
+            <!-- Status -->
+            <div class="col-12 col-md-6">
+              <label for="status_val" class="form-label">Member Status <span class="text-danger">*</span></label>
+              <select name="status_val" id="status_val" class="form-select" required>
+                <option value="Active" {% if student.status == 'Active' %}selected{% endif %}>Active (Can Borrow Books)</option>
+                <option value="Inactive" {% if student.status == 'Inactive' %}selected{% endif %}>Inactive (Borrowing Suspended)</option>
+              </select>
+            </div>
+
+            <!-- Address -->
+            <div class="col-12">
+              <label for="address" class="form-label">Residential Address</label>
+              <textarea
+                class="form-control"
+                id="address"
+                name="address"
+                rows="2"
+              >{{ student.address or '' }}</textarea>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/students/{{ student.id }}" class="btn btn-secondary btn-sm px-3">Cancel</a>
+            <button type="submit" class="btn btn-primary btn-sm px-4">
+              <i class="bi bi-check-lg me-1"></i> Update Student
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

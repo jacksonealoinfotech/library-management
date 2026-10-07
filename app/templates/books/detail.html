@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} - Book Details{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-1 small">
+      <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="/books">Books</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ book.title }}</li>
+    </ol>
+  </nav>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">{{ book.title }}</h3>
+      <p class="text-muted small mb-0">by <strong>{{ book.author }}</strong> &bull; ISBN: <code>{{ book.isbn }}</code></p>
+    </div>
+    <div class="d-flex gap-2">
+      {% if book.available_copies > 0 %}
+        <a href="/issue?book_id={{ book.id }}" class="btn btn-success btn-sm px-3 shadow-sm">
+          <i class="bi bi-box-arrow-up-right me-1"></i> Issue This Book
+        </a>
+      {% endif %}
+      <a href="/books/{{ book.id }}/edit" class="btn btn-primary btn-sm px-3 shadow-sm">
+        <i class="bi bi-pencil me-1"></i> Edit Book
+      </a>
+      <button
+        type="button"
+        class="btn btn-outline-danger btn-sm px-3"
+        data-bs-toggle="modal"
+        data-bs-target="#deleteConfirmModal"
+        data-delete-url="/books/{{ book.id }}/delete"
+        data-item-name="{{ book.title }}"
+        data-item-type="book"
+      >
+        <i class="bi bi-trash me-1"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Left Column: Book Details -->
+  <div class="col-12 col-lg-8">
+    <div class="card h-100">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-info-circle me-2"></i>Book Metadata</h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <label class="text-muted small d-block">ISBN</label>
+            <span class="fw-semibold">{{ book.isbn }}</span>
+          </div>
+          <div class="col-sm-6">
+            <label class="text-muted small d-block">Category</label>
+            <span class="badge bg-light text-dark border">{{ book.category }}</span>
+          </div>
+          <div class="col-sm-6">
+            <label class="text-muted small d-block">Publisher</label>
+            <span class="fw-semibold">{{ book.publisher or 'Not Specified' }}</span>
+          </div>
+          <div class="col-sm-6">
+            <label class="text-muted small d-block">Publication Year</label>
+            <span class="fw-semibold">{{ book.publication_year or 'N/A' }}</span>
+          </div>
+          <div class="col-sm-6">
+            <label class="text-muted small d-block">Shelf / Location</label>
+            <span class="fw-semibold">{{ book.shelf_number or 'Unassigned' }}</span>
+          </div>
+          <div class="col-sm-6">
+            <label class="text-muted small d-block">Record Added</label>
+            <span class="fw-semibold">{{ book.created_at | format_date }}</span>
+          </div>
+          <div class="col-12">
+            <label class="text-muted small d-block">Description</label>
+            <p class="mb-0 text-secondary bg-light p-3 rounded small">
+              {{ book.description or 'No synopsis or description provided for this book.' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Inventory Status -->
+  <div class="col-12 col-lg-4">
+    <div class="card h-100">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-pie-chart me-2"></i>Inventory Breakdown</h6>
+      </div>
+      <div class="card-body text-center d-flex flex-column justify-content-center">
+        <div class="mb-3">
+          {% if book.available_copies > 0 %}
+            <span class="badge-status status-available fs-6 py-2 px-3">
+              <i class="bi bi-check-circle-fill"></i> In Stock
+            </span>
+          {% else %}
+            <span class="badge-status status-overdue fs-6 py-2 px-3">
+              <i class="bi bi-x-circle-fill"></i> All Copies Issued
+            </span>
+          {% endif %}
+        </div>
+
+        <div class="row g-2 text-center my-3">
+          <div class="col-6">
+            <div class="p-3 bg-light rounded border">
+              <div class="fs-3 fw-bold text-success">{{ book.available_copies }}</div>
+              <div class="text-muted small">Available</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 bg-light rounded border">
+              <div class="fs-3 fw-bold text-primary">{{ book.total_copies - book.available_copies }}</div>
+              <div class="text-muted small">Issued</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-muted small">
+          Total Registered Copies: <strong>{{ book.total_copies }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lending History for this Book -->
+<div class="card">
+  <div class="card-header bg-white py-3">
+    <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-clock-history me-2"></i>Circulation History for this Title</h6>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Admission No.</th>
+          <th>Issue Date</th>
+          <th>Due Date</th>
+          <th>Return Date</th>
+          <th>Status</th>
+          <th>Fine</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in transactions %}
+          <tr>
+            <td class="fw-semibold">
+              <a href="/students/{{ tx.student.id }}" class="text-dark text-decoration-none hover-primary">
+                {{ tx.student.full_name }}
+              </a>
+            </td>
+            <td><code>{{ tx.student.admission_number }}</code></td>
+            <td class="small">{{ tx.issue_date | format_date }}</td>
+            <td class="small">{{ tx.due_date | format_date }}</td>
+            <td class="small">{{ tx.return_date | format_date if tx.return_date else '—' }}</td>
+            <td>
+              {% if tx.status == 'Returned' %}
+                <span class="badge-status status-returned">Returned</span>
+              {% elif current_date() > tx.due_date %}
+                <span class="badge-status status-overdue">Overdue</span>
+              {% else %}
+                <span class="badge-status status-issued">Issued</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if tx.fine_amount > 0 %}
+                <span class="text-danger fw-bold">${{ "%.2f"|format(tx.fine_amount) }}</span>
+              {% else %}
+                <span class="text-muted">$0.00</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="7" class="text-center py-4 text-muted">
+              No circulation records found for this book yet.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

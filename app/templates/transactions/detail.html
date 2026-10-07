@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction #{{ transaction.id }} Details{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-1 small">
+      <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="/transactions">Transactions</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Transaction #{{ transaction.id }}</li>
+    </ol>
+  </nav>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">Transaction Record #{{ transaction.id }}</h3>
+      <p class="text-muted small mb-0">Recorded on {{ transaction.created_at | format_date("%b %d, %Y at %I:%M %p") }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/transactions" class="btn btn-secondary btn-sm px-3 shadow-sm">
+        <i class="bi bi-arrow-left me-1"></i> Back to History
+      </a>
+      {% if transaction.status == 'Issued' %}
+        <button
+          type="button"
+          class="btn btn-success btn-sm px-3 shadow-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#returnBookModal"
+          data-return-url="/return/{{ transaction.id }}"
+          data-book-title="{{ transaction.book.title }}"
+          data-student-name="{{ transaction.student.full_name }}"
+          data-est-fine="{{ transaction.current_fine_amount }}"
+          data-overdue-days="{{ transaction.current_overdue_days }}"
+        >
+          <i class="bi bi-arrow-return-left me-1"></i> Return This Book
+        </button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Loan Status Card -->
+  <div class="col-12 col-md-4">
+    <div class="card h-100">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-info-circle me-2"></i>Circulation Status</h6>
+      </div>
+      <div class="card-body text-center d-flex flex-column justify-content-center">
+        <div class="mb-3">
+          {% if transaction.display_status == 'Returned' %}
+            <span class="badge-status status-returned fs-6 py-2 px-3">
+              <i class="bi bi-check-circle-fill"></i> Returned
+            </span>
+          {% elif transaction.display_status == 'Overdue' %}
+            <span class="badge-status status-overdue fs-6 py-2 px-3">
+              <i class="bi bi-exclamation-triangle-fill"></i> Overdue Loan
+            </span>
+          {% else %}
+            <span class="badge-status status-issued fs-6 py-2 px-3">
+              <i class="bi bi-book-half"></i> Currently Issued
+            </span>
+          {% endif %}
+        </div>
+
+        <div class="p-3 bg-light rounded border my-2">
+          <div class="stat-label mb-1">Fine Assessment</div>
+          <div class="fs-2 fw-bold {% if transaction.current_fine_amount > 0 %}text-danger{% else %}text-muted{% endif %}">
+            ${{ "%.2f"|format(transaction.current_fine_amount) }}
+          </div>
+          {% if transaction.current_overdue_days > 0 %}
+            <div class="text-danger small fw-semibold">
+              {{ transaction.current_overdue_days }} days overdue @ ${{ "%.2f"|format(app_settings.FINE_PER_DAY) }}/day
+            </div>
+          {% else %}
+            <div class="text-muted small">No overdue fine charged</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loan Timeline & Dates -->
+  <div class="col-12 col-md-8">
+    <div class="card h-100">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-calendar-event me-2"></i>Schedule &amp; Dates</h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-4">
+            <label class="text-muted small d-block">Issue Date</label>
+            <span class="fs-6 fw-bold text-dark">{{ transaction.issue_date | format_date }}</span>
+          </div>
+          <div class="col-sm-4">
+            <label class="text-muted small d-block">Due Date</label>
+            <span class="fs-6 fw-bold text-dark">{{ transaction.due_date | format_date }}</span>
+          </div>
+          <div class="col-sm-4">
+            <label class="text-muted small d-block">Actual Return Date</label>
+            {% if transaction.return_date %}
+              <span class="fs-6 fw-bold text-success">{{ transaction.return_date | format_date }}</span>
+            {% else %}
+              <span class="text-muted fst-italic">Pending Return</span>
+            {% endif %}
+          </div>
+          <div class="col-sm-6">
+            <label class="text-muted small d-block">System Record Created</label>
+            <span class="small">{{ transaction.created_at | format_date("%b %d, %Y at %I:%M %p") }}</span>
+          </div>
+          <div class="col-sm-6">
+            <label class="text-muted small d-block">Last Updated</label>
+            <span class="small">{{ transaction.updated_at | format_date("%b %d, %Y at %I:%M %p") }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Book Card -->
+  <div class="col-12 col-md-6">
+    <div class="card h-100">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-book me-2"></i>Borrowed Book Information</h6>
+        <a href="/books/{{ transaction.book.id }}" class="btn btn-outline-primary btn-sm">View Book</a>
+      </div>
+      <div class="card-body">
+        <h5 class="fw-bold mb-1">{{ transaction.book.title }}</h5>
+        <div class="text-muted small mb-3">by {{ transaction.book.author }}</div>
+        <div class="row g-2 small">
+          <div class="col-6 text-muted">ISBN:</div>
+          <div class="col-6 fw-semibold"><code>{{ transaction.book.isbn }}</code></div>
+          <div class="col-6 text-muted">Category:</div>
+          <div class="col-6 fw-semibold">{{ transaction.book.category }}</div>
+          <div class="col-6 text-muted">Shelf Location:</div>
+          <div class="col-6 fw-semibold">{{ transaction.book.shelf_number or 'N/A' }}</div>
+          <div class="col-6 text-muted">Current Inventory:</div>
+          <div class="col-6 fw-semibold text-success">{{ transaction.book.available_copies }} of {{ transaction.book.total_copies }} available</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Card -->
+  <div class="col-12 col-md-6">
+    <div class="card h-100">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-person me-2"></i>Borrower Student Information</h6>
+        <a href="/students/{{ transaction.student.id }}" class="btn btn-outline-primary btn-sm">View Profile</a>
+      </div>
+      <div class="card-body">
+        <h5 class="fw-bold mb-1">{{ transaction.student.full_name }}</h5>
+        <div class="text-muted small mb-3">Admission No: <code>{{ transaction.student.admission_number }}</code></div>
+        <div class="row g-2 small">
+          <div class="col-6 text-muted">Department:</div>
+          <div class="col-6 fw-semibold">{{ transaction.student.department }}</div>
+          <div class="col-6 text-muted">Course &amp; Year:</div>
+          <div class="col-6 fw-semibold">{{ transaction.student.course }} ({{ transaction.student.year }})</div>
+          <div class="col-6 text-muted">Email:</div>
+          <div class="col-6 fw-semibold">{{ transaction.student.email }}</div>
+          <div class="col-6 text-muted">Phone:</div>
+          <div class="col-6 fw-semibold">{{ transaction.student.phone }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

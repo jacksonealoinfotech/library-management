@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Library Analytics &amp; Reports{% endblock %}
+
+{% block content %}
+<div class="print-header">
+  <h2>{{ app_settings.LIBRARY_NAME }}</h2>
+  <h4>Official Circulation &amp; Analytics Report</h4>
+  <p class="text-muted small">Generated on {{ current_date() | format_date }}</p>
+</div>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 no-print">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">Library Reports &amp; Analytics</h3>
+    <p class="text-muted small mb-0">Auditing and statistical summaries for collection usage and student borrowing trends.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button type="button" onclick="window.print()" class="btn btn-outline-secondary btn-sm px-3 shadow-sm bg-white">
+      <i class="bi bi-printer me-1"></i> Print Report
+    </button>
+    <a href="/reports/export?from_date={{ from_date }}&to_date={{ to_date }}" class="btn btn-primary btn-sm px-3 shadow-sm">
+      <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export to CSV
+    </a>
+  </div>
+</div>
+
+<!-- Date Filter Form -->
+<div class="card mb-4 no-print">
+  <div class="card-body p-3">
+    <form method="get" action="/reports" class="row g-2 align-items-end">
+      <div class="col-12 col-md-4">
+        <label class="form-label small text-muted mb-1">Activity From Date</label>
+        <input
+          type="date"
+          class="form-control form-control-sm"
+          name="from_date"
+          value="{{ from_date }}"
+        >
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label small text-muted mb-1">Activity To Date</label>
+        <input
+          type="date"
+          class="form-control form-control-sm"
+          name="to_date"
+          value="{{ to_date }}"
+        >
+      </div>
+      <div class="col-12 col-md-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+          <i class="bi bi-filter me-1"></i> Generate Filtered Report
+        </button>
+        <a href="/reports" class="btn btn-outline-secondary btn-sm" title="Reset Dates">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Summary Metric Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card stat-card p-3">
+      <div class="stat-label">Total Titles / Copies</div>
+      <div class="stat-value text-dark">{{ report.total_titles }} / {{ report.total_copies }}</div>
+      <div class="text-muted small">{{ report.available_copies }} currently available</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card stat-card p-3">
+      <div class="stat-label">Registered Members</div>
+      <div class="stat-value text-primary">{{ report.total_students }}</div>
+      <div class="text-muted small">{{ report.active_students }} active students</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card stat-card p-3">
+      <div class="stat-label">Period Circulation</div>
+      <div class="stat-value text-info">{{ report.period_issues }}</div>
+      <div class="text-muted small">{{ report.period_returned }} returned &bull; {{ report.period_active }} active</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card stat-card p-3">
+      <div class="stat-label">Total Fines Collected</div>
+      <div class="stat-value text-danger">${{ "%.2f"|format(report.period_fines) }}</div>
+      <div class="text-muted small">{{ report.period_overdue }} overdue unreturned</div>
+    </div>
+  </div>
+</div>
+
+<!-- Top Borrowed Books & Active Students -->
+<div class="row g-4 mb-4">
+  <!-- Top Borrowed Books -->
+  <div class="col-12 col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-trophy-fill text-warning me-2"></i>Most Borrowed Titles</h6>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Book Title &amp; Author</th>
+              <th>Category</th>
+              <th class="text-end">Times Issued</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in report.top_books %}
+              <tr>
+                <td><strong>{{ loop.index }}</strong></td>
+                <td>
+                  <div class="fw-bold text-dark">{{ b.title }}</div>
+                  <span class="text-muted small">{{ b.author }} (ISBN: {{ b.isbn }})</span>
+                </td>
+                <td><span class="badge bg-light text-dark border">{{ b.category }}</span></td>
+                <td class="text-end fw-bold text-primary">{{ b.issue_count }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="4" class="text-center py-4 text-muted">No circulation records in selected date range.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Most Active Students -->
+  <div class="col-12 col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-people-fill text-info me-2"></i>Most Active Borrowers</h6>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Student Name</th>
+              <th>Department</th>
+              <th class="text-end">Books Borrowed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in report.top_students %}
+              <tr>
+                <td><strong>{{ loop.index }}</strong></td>
+                <td>
+                  <div class="fw-bold text-dark">{{ s.full_name }}</div>
+                  <span class="text-muted small">Adm: {{ s.admission_number }}</span>
+                </td>
+                <td class="small">{{ s.department }} ({{ s.course }})</td>
+                <td class="text-end fw-bold text-success">{{ s.borrow_count }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="4" class="text-center py-4 text-muted">No student borrowing activity in selected date range.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Transactions Table -->
+<div class="card">
+  <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-receipt me-2"></i>Audit Records in Report Period</h6>
+    <span class="badge bg-light text-muted border">{{ report.transactions | length }} records</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Tx ID</th>
+          <th>Book</th>
+          <th>Student</th>
+          <th>Issue Date</th>
+          <th>Due Date</th>
+          <th>Return Date</th>
+          <th>Status</th>
+          <th class="text-end">Fine</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in report.transactions %}
+          <tr>
+            <td><code>#{{ tx.id }}</code></td>
+            <td class="small fw-semibold">{{ tx.book.title }}</td>
+            <td class="small">{{ tx.student.full_name }}</td>
+            <td class="small">{{ tx.issue_date | format_date }}</td>
+            <td class="small">{{ tx.due_date | format_date }}</td>
+            <td class="small">{{ tx.return_date | format_date if tx.return_date else '—' }}</td>
+            <td>
+              {% if tx.display_status == 'Returned' %}
+                <span class="badge-status status-returned small">Returned</span>
+              {% elif tx.display_status == 'Overdue' %}
+                <span class="badge-status status-overdue small">Overdue</span>
+              {% else %}
+                <span class="badge-status status-issued small">Issued</span>
+              {% endif %}
+            </td>
+            <td class="text-end small">
+              {% if tx.fine_amount > 0 %}
+                <span class="text-danger fw-bold">${{ "%.2f"|format(tx.fine_amount) }}</span>
+              {% else %}
+                $0.00
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="8" class="text-center py-4 text-muted">No transactions recorded for this period.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

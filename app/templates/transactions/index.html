@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction History{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">Transaction History</h3>
+    <p class="text-muted small mb-0">Complete audit log of all book lending, returns, due dates, and fine assessments.</p>
+  </div>
+  <div>
+    <a href="/reports/export" class="btn btn-outline-secondary btn-sm px-3 shadow-sm bg-white">
+      <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export to CSV
+    </a>
+  </div>
+</div>
+
+<!-- Search & Filters -->
+<div class="card mb-4">
+  <div class="card-body p-3">
+    <form method="get" action="/transactions" class="row g-2 align-items-end">
+      <!-- Search Input -->
+      <div class="col-12 col-md-4">
+        <label class="form-label small text-muted mb-1">Search Records</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+          <input
+            type="text"
+            class="form-control"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search by student name, book title, ISBN..."
+          >
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="col-6 col-md-2">
+        <label class="form-label small text-muted mb-1">Status</label>
+        <select name="status_filter" class="form-select form-select-sm">
+          <option value="" {% if not status_filter %}selected{% endif %}>All Statuses</option>
+          <option value="Issued" {% if status_filter == 'Issued' %}selected{% endif %}>Currently Issued</option>
+          <option value="Overdue" {% if status_filter == 'Overdue' %}selected{% endif %}>Overdue</option>
+          <option value="Returned" {% if status_filter == 'Returned' %}selected{% endif %}>Returned</option>
+        </select>
+      </div>
+
+      <!-- From Date -->
+      <div class="col-6 col-md-2">
+        <label class="form-label small text-muted mb-1">Issue Date From</label>
+        <input
+          type="date"
+          class="form-control form-control-sm"
+          name="from_date"
+          value="{{ from_date }}"
+        >
+      </div>
+
+      <!-- To Date -->
+      <div class="col-6 col-md-2">
+        <label class="form-label small text-muted mb-1">Issue Date To</label>
+        <input
+          type="date"
+          class="form-control form-control-sm"
+          name="to_date"
+          value="{{ to_date }}"
+        >
+      </div>
+
+      <!-- Actions -->
+      <div class="col-6 col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+          <i class="bi bi-funnel me-1"></i> Filter
+        </button>
+        <a href="/transactions" class="btn btn-outline-secondary btn-sm" title="Reset Filters">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Transactions Table -->
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Tx ID</th>
+          <th>Book</th>
+          <th>Student</th>
+          <th>Issue Date</th>
+          <th>Due Date</th>
+          <th>Return Date</th>
+          <th>Status</th>
+          <th>Late Days</th>
+          <th>Fine ($)</th>
+          <th class="text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in pagination.items %}
+          <tr>
+            <td><code>#{{ tx.id }}</code></td>
+            <td>
+              <div class="fw-bold text-dark text-truncate" style="max-width: 190px;" title="{{ tx.book.title }}">
+                <a href="/books/{{ tx.book.id }}" class="text-dark text-decoration-none hover-primary">
+                  {{ tx.book.title }}
+                </a>
+              </div>
+              <span class="text-muted small">ISBN: {{ tx.book.isbn }}</span>
+            </td>
+            <td>
+              <div class="fw-semibold">
+                <a href="/students/{{ tx.student.id }}" class="text-dark text-decoration-none hover-primary">
+                  {{ tx.student.full_name }}
+                </a>
+              </div>
+              <span class="text-muted small">Adm: {{ tx.student.admission_number }}</span>
+            </td>
+            <td class="small">{{ tx.issue_date | format_date }}</td>
+            <td class="small">{{ tx.due_date | format_date }}</td>
+            <td class="small">
+              {% if tx.return_date %}
+                <span class="text-success">{{ tx.return_date | format_date }}</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if tx.display_status == 'Returned' %}
+                <span class="badge-status status-returned"><i class="bi bi-check2"></i> Returned</span>
+              {% elif tx.display_status == 'Overdue' %}
+                <span class="badge-status status-overdue"><i class="bi bi-exclamation-triangle"></i> Overdue</span>
+              {% else %}
+                <span class="badge-status status-issued"><i class="bi bi-book"></i> Issued</span>
+              {% endif %}
+            </td>
+            <td class="small">
+              {% if tx.current_overdue_days > 0 %}
+                <span class="text-danger fw-semibold">{{ tx.current_overdue_days }}</span>
+              {% else %}
+                <span class="text-muted">0</span>
+              {% endif %}
+            </td>
+            <td class="small">
+              {% if tx.current_fine_amount > 0 %}
+                <span class="text-danger fw-bold">${{ "%.2f"|format(tx.current_fine_amount) }}</span>
+              {% else %}
+                <span class="text-muted">$0.00</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="/transactions/{{ tx.id }}" class="btn btn-sm btn-outline-secondary" title="View Transaction">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="10" class="text-center py-5 text-muted">
+              <i class="bi bi-journal-x fs-1 d-block mb-2 text-secondary opacity-50"></i>
+              No transaction history found matching your filters.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  {% if pagination.total > 0 %}
+    <div class="card-footer bg-white d-flex flex-column flex-sm-row justify-content-between align-items-center py-3">
+      <div class="text-muted small mb-2 mb-sm-0">
+        Showing <strong>{{ pagination.start_index }}</strong> to <strong>{{ pagination.end_index }}</strong> of <strong>{{ pagination.total }}</strong> records
+      </div>
+      <nav aria-label="Transactions pagination">
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="/transactions?page={{ pagination.prev_page or 1 }}&search={{ search }}&status_filter={{ status_filter }}&from_date={{ from_date }}&to_date={{ to_date }}">
+              <i class="bi bi-chevron-left"></i> Previous
+            </a>
+          </li>
+          {% for p in range(1, pagination.pages + 1) %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+              <a class="page-link" href="/transactions?page={{ p }}&search={{ search }}&status_filter={{ status_filter }}&from_date={{ from_date }}&to_date={{ to_date }}">{{ p }}</a>
+            </li>
+          {% endfor %}
+          <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="/transactions?page={{ pagination.next_page or pagination.pages }}&search={{ search }}&status_filter={{ status_filter }}&from_date={{ from_date }}&to_date={{ to_date }}">
+              Next <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
