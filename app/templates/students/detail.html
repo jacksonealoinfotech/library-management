@@ -241,9 +241,9 @@
             <td>{{ tx.overdue_days }}</td>
             <td>
               {% if tx.fine_amount > 0 %}
-                <span class="text-danger fw-bold">${{ "%.2f"|format(tx.fine_amount) }}</span>
+                <span class="text-danger fw-bold">₹{{ "%.2f"|format(tx.fine_amount) }}</span>
               {% else %}
-                <span class="text-muted">$0.00</span>
+                <span class="text-muted">₹0.00</span>
               {% endif %}
             </td>
           </tr>

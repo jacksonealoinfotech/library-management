@@ -66,7 +66,7 @@ async def export_report_csv(
         "Return Date",
         "Status",
         "Overdue Days",
-        "Fine Amount ($)"
+        "Fine Amount (₹)"
     ])
 
     for tx in transactions:

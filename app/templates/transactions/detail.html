@@ -66,11 +66,11 @@
         <div class="p-3 bg-light rounded border my-2">
           <div class="stat-label mb-1">Fine Assessment</div>
           <div class="fs-2 fw-bold {% if transaction.current_fine_amount > 0 %}text-danger{% else %}text-muted{% endif %}">
-            ${{ "%.2f"|format(transaction.current_fine_amount) }}
+            ₹{{ "%.2f"|format(transaction.current_fine_amount) }}
           </div>
           {% if transaction.current_overdue_days > 0 %}
             <div class="text-danger small fw-semibold">
-              {{ transaction.current_overdue_days }} days overdue @ ${{ "%.2f"|format(app_settings.FINE_PER_DAY) }}/day
+              {{ transaction.current_overdue_days }} days overdue @ ₹{{ "%.2f"|format(app_settings.FINE_PER_DAY) }}/day
             </div>
           {% else %}
             <div class="text-muted small">No overdue fine charged</div>

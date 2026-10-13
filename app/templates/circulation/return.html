@@ -83,7 +83,7 @@
                 <span class="badge-status status-overdue d-block mb-1">
                   <i class="bi bi-exclamation-triangle-fill"></i> Overdue ({{ tx.current_overdue_days }} days)
                 </span>
-                <span class="text-danger fw-bold small">Fine: ${{ "%.2f"|format(tx.current_fine_amount) }}</span>
+                <span class="text-danger fw-bold small">Fine: ₹{{ "%.2f"|format(tx.current_fine_amount) }}</span>
               {% else %}
                 <span class="badge-status status-issued">
                   <i class="bi bi-clock"></i> On Time

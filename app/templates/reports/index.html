@@ -84,7 +84,7 @@
   <div class="col-6 col-lg-3">
     <div class="card stat-card p-3">
       <div class="stat-label">Total Fines Collected</div>
-      <div class="stat-value text-danger">${{ "%.2f"|format(report.period_fines) }}</div>
+      <div class="stat-value text-danger">₹{{ "%.2f"|format(report.period_fines) }}</div>
       <div class="text-muted small">{{ report.period_overdue }} overdue unreturned</div>
     </div>
   </div>
@@ -209,9 +209,9 @@
             </td>
             <td class="text-end small">
               {% if tx.fine_amount > 0 %}
-                <span class="text-danger fw-bold">${{ "%.2f"|format(tx.fine_amount) }}</span>
+                <span class="text-danger fw-bold">₹{{ "%.2f"|format(tx.fine_amount) }}</span>
               {% else %}
-                $0.00
+                ₹0.00
               {% endif %}
             </td>
           </tr>

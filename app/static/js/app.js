@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (form && returnUrl) form.setAttribute("action", returnUrl);
       if (bookEl && bookTitle) bookEl.textContent = bookTitle;
       if (studentEl && studentName) studentEl.textContent = studentName;
-      if (fineEl) fineEl.textContent = `$${parseFloat(estFine).toFixed(2)}`;
+      if (fineEl) fineEl.textContent = `₹${parseFloat(estFine).toFixed(2)}`;
       if (daysEl) daysEl.textContent = overdueDays;
 
       if (fineAlertEl) {

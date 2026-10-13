@@ -117,10 +117,10 @@
                   {{ tx.current_overdue_days }} day(s) late
                 </div>
                 <div class="text-danger small">
-                  Fine: <strong>${{ "%.2f"|format(tx.current_fine_amount) }}</strong>
+                  Fine: <strong>₹{{ "%.2f"|format(tx.current_fine_amount) }}</strong>
                 </div>
               {% else %}
-                <span class="text-muted small">On schedule ($0.00)</span>
+                <span class="text-muted small">On schedule (₹0.00)</span>
               {% endif %}
             </td>
             <td class="text-end">

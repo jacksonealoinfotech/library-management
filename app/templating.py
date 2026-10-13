@@ -68,9 +68,9 @@ def format_date(value, fmt="%b %d, %Y"):
 def format_currency(value):
     try:
         val = float(value)
-        return f"${val:.2f}"
+        return f"₹{val:.2f}"
     except (ValueError, TypeError):
-        return "$0.00"
+        return "₹0.00"
 
 templates.env.filters["format_date"] = format_date
 templates.env.filters["currency"] = format_currency

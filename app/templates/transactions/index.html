@@ -94,7 +94,7 @@
           <th>Return Date</th>
           <th>Status</th>
           <th>Late Days</th>
-          <th>Fine ($)</th>
+          <th>Fine (₹)</th>
           <th class="text-end">Action</th>
         </tr>
       </thead>
@@ -145,9 +145,9 @@
             </td>
             <td class="small">
               {% if tx.current_fine_amount > 0 %}
-                <span class="text-danger fw-bold">${{ "%.2f"|format(tx.current_fine_amount) }}</span>
+                <span class="text-danger fw-bold">₹{{ "%.2f"|format(tx.current_fine_amount) }}</span>
               {% else %}
-                <span class="text-muted">$0.00</span>
+                <span class="text-muted">₹0.00</span>
               {% endif %}
             </td>
             <td class="text-end">
